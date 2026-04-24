@@ -1,1 +1,8 @@
+# Large presentation decks (kept locally by default).
+# Remove these lines if you want to commit the PPTX files to GitHub.
 Using LLM to Upgrade Multi-Level Transformer-Based Sugarcane Disease.pptx
+Research work.pptx
+
+# Temporary PPTX extraction artifacts
+*_pptx_extract/
+*_slides.zip

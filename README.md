@@ -15,12 +15,28 @@ Existing sugarcane leaf datasets and many models perform well for **single-label
 
 ---
 
-## Baseline (What Is MLTSDC?)
-MLTSDC (Multi-Level Transformer-Based Sugarcane Disease Classifier) is a **multi-stage classifier** designed to handle real-world variability in sugarcane leaf images. The proposed upgraded workflow (as per the slide deck in this repo) follows the same idea but adds **mixed infection** coverage:
+## Model Architecture (Proposed)
+The proposed model follows a **hierarchical multi-level pipeline** inspired by MLTSDC, and explicitly branches for **single vs mixed** infections.
 
-- **Level 1:** Healthy vs. Unhealthy
-- **Level 2:** Single disease vs. Mixed disease
-- **Level 3:** Specific disease type / combination
+- **Patch Encoder:** converts an input leaf image into patch/tokens for the transformer blocks
+- **Level 1 (AI Block):** Healthy vs Unhealthy
+- **Level 2 (AI Block):** Single disease vs Mixed disease (only for predicted Unhealthy images)
+- **Level 3 (AI Block):** Single-disease classes
+- **Level 4 (AI Block):** Mixed-disease classes (co-occurring diseases)
+
+```mermaid
+flowchart TD
+  I[Input leaf image] --> P[Patch Encoder]
+  P --> L1[AI Block - Level 1]
+  L1 --> H{Healthy / Unhealthy}
+  H -->|Healthy| OUT_H[Healthy]
+  H -->|Unhealthy| L2[AI Block - Level 2]
+  L2 --> S{Single / Mixed}
+  S -->|Single| L3[AI Block - Level 3]
+  S -->|Mixed| L4[AI Block - Level 4]
+  L3 --> OUT_S[Single disease classes]
+  L4 --> OUT_M[Mixed disease classes]
+```
 
 ---
 
@@ -33,6 +49,44 @@ MLTSDC (Multi-Level Transformer-Based Sugarcane Disease Classifier) is a **multi
    - strict image constraints to match training data (256x256, JPEG, no text/watermarks, realistic backgrounds)
 3. **Generate synthetic images** using accessible GenAI models (open/free where possible; paid APIs can be limiting).
 4. **Integrate synthetic + real images** into an upgraded multi-level training setup for mixed infections.
+
+---
+
+## Experiments & Results (from `Research work.pptx`)
+These are the intermediate results captured in the project presentation used during the M.Tech work.
+
+### 1) Optimizer sweep on baseline MLTSDC (10 epochs, LR=0.001)
+Goal: check whether optimizer/lr changes improve results (they did not materially help).
+
+| Optimizer | Epochs | LR | Training (%) | Test L1 (%) | Test L2 (%) |
+|---|---:|---:|---:|---:|---:|
+| Adam | 10 | 0.001 | 80.45 | 95 | 90 |
+| Adagrad | 10 | 0.001 | 79.00 | 98 | 83 |
+| SGD | 10 | 0.001 | 78.00 | 93 | 80 |
+| Nadam | 10 | 0.001 | 80.02 | 95 | 94 |
+
+### 2) Preliminary training results (MLTSDC vs Proposed Model)
+Setup used in the PPTX:
+- Optimizer: Adam
+- Learning rate: 0.001
+- Epochs: 5
+- Heads: 2
+
+**Table 1: MLTSDC**
+| Level | Training accuracy | Testing accuracy |
+|---:|---:|---:|
+| 1 | 85.77% | 81.40% |
+| 2 | 49.06% | 40.58% |
+| Overall | - | 65.23% |
+
+**Table 2: Proposed Model**
+| Level | Training accuracy | Testing accuracy |
+|---:|---:|---:|
+| 1 | 85.30% | 82.01% |
+| 2 | 92.34% | 91.15% |
+| 3 | 38.06% | 37.68% |
+| 4 | 36.01% | 27.47% |
+| Overall | - | 85.30% |
 
 ---
 
@@ -97,9 +151,12 @@ with open("prompt.csv", newline="", encoding="utf-8") as f:
 
 ## Repo Contents
 - `prompt.csv`: prompt templates for mixed-disease synthetic data generation
-- `Using LLM to Upgrade Multi-Level Transformer-Based Sugarcane Disease.pptx`: project presentation (motivation, gap analysis, workflow, progress)
+- `Research work.pptx`: project presentation (problem, proposed model, and intermediate experiment results)
+- `Using LLM to Upgrade Multi-Level Transformer-Based Sugarcane Disease.pptx`: supporting slide deck (motivation, gap analysis, workflow, progress)
 - `colab_genation.ipynb`: currently empty placeholder (intended for Colab-based generation workflow)
 - `post_process.py`: currently empty placeholder (intended for resizing/format conversion/quality checks)
+
+Note: the `.pptx` files are git-ignored by default in `.gitignore`. Remove those ignore rules if you want to commit the presentations to GitHub.
 
 ---
 
@@ -110,6 +167,7 @@ with open("prompt.csv", newline="", encoding="utf-8") as f:
 - Built a **prompt-engineered synthetic dataset plan** to address **mixed infection** gaps in sugarcane leaf disease classification (MLTSDC extension).
 - Curated **48 structured prompts** covering **4 overlapping disease pairs**, **3 severity levels**, and **4 climate conditions** to improve real-field generalization.
 - Evaluated baseline training sensitivity to optimizer/learning-rate choices; identified **data coverage** (not hyperparameters) as the primary bottleneck.
+- Achieved **85.30% overall testing accuracy (preliminary)** with the proposed multi-level model vs **65.23%** with baseline MLTSDC on the current split (per `Research work.pptx`).
 - Prototyped a workflow to generate realistic leaf images using **GenAI models** (open/free options when paid APIs are restrictive).
 
 ---
