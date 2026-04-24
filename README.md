@@ -202,19 +202,7 @@ Common issues you may hit while running the notebooks, generating images, or pos
 
 Note: the `.pptx` files are git-ignored by default in `.gitignore`. Remove those ignore rules if you want to commit the presentations to GitHub.
 
----
 
-## Project Status
-- **Stage:** prompt bank + initial generation experiments completed; training the upgraded classifier is ongoing.
-
-## Resume/Recruiter Summary (Copy-Paste Friendly)
-- Built a **prompt-engineered synthetic dataset plan** to address **mixed infection** gaps in sugarcane leaf disease classification (MLTSDC extension).
-- Curated **48 structured prompts** covering **4 overlapping disease pairs**, **3 severity levels**, and **4 climate conditions** to improve real-field generalization.
-- Evaluated baseline training sensitivity to optimizer/learning-rate choices; identified **data coverage** (not hyperparameters) as the primary bottleneck.
-- Achieved **85.30% overall testing accuracy (preliminary)** with the proposed multi-level model vs **65.23%** with baseline MLTSDC on the current split (per `Research work.pptx`).
-- Prototyped a workflow to generate realistic leaf images using **GenAI models** (open/free options when paid APIs are restrictive).
-
----
 
 ## References
 - Rajput, S.S., et al. (2025). *MLTSDC: Multi-Level Transformer-Based Sugarcane Disease Classifier*. Physiological and Molecular Plant Pathology, 141, 102323.
