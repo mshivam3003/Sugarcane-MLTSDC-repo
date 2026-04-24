@@ -6,3 +6,14 @@ Research work.pptx
 # Temporary PPTX extraction artifacts
 *_pptx_extract/
 *_slides.zip
+
+# Generated synthetic images (recommended to keep out of git)
+raw_synthetic/
+data/
+
+# Python caches
+__pycache__/
+
+colab_genation.ipynb
+
+

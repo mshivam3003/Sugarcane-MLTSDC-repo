@@ -149,6 +149,50 @@ with open("prompt.csv", newline="", encoding="utf-8") as f:
 
 ---
 
+## Error Handling / Troubleshooting
+Common issues you may hit while running the notebooks, generating images, or post-processing datasets.
+
+### Dataset path / folder structure issues
+- **Symptom:** dataset folder not found / empty (common outside Kaggle).
+  - **Fix:** set paths explicitly in your environment (recommended for local/Colab):
+    - `SUGARCANE_DATASET_SRC` (original dataset root)
+    - `SUGARCANE_DATASET_DST` (copied/restructured dataset root)
+  - **Also check:** expected class folders exist (e.g., `Healthy/`, and disease folders like `Mosaic/`, `RedRot/`, `Rust/`, `Yellow/` depending on your dataset naming).
+
+### Dependency / install failures (TensorFlow / Pillow)
+- **Error:** `ModuleNotFoundError: No module named 'tensorflow'` or pip install fails (no internet / blocked).
+  - **Fix:** use an environment with TensorFlow available (Kaggle/Colab) or pre-install dependencies.
+- **Error:** `Missing dependency: Pillow` (used by image I/O).
+  - **Fix:** `pip install pillow`
+
+### CSV header / encoding issues (`prompt.csv`)
+- **Error:** `prompt.csv missing columns: ['ID']` (or similar).
+  - **Cause:** the CSV was saved with a UTF-8 BOM or header names have extra spaces.
+  - **Fix:** re-save `prompt.csv` as UTF-8 (or UTF-8 with BOM) with the exact header names:
+    `ID,Pair_Code,Disease_Pair,Severity,Climate,Prompt,Folder`.
+
+### ID mapping + skipped images during post-processing
+- **Symptom:** many files are skipped with `--strict-id-mapping`.
+  - **Cause:** the post-processing step extracts the prompt `ID` from the **filename**, so raw images must be named like `1.png`, `2.jpg`, etc.
+  - **Fix options:**
+    - Rename images to start with the numeric ID
+    - Or adjust the regex (example): `--id-regex \"(?P<id>\\d+)\"`
+    - Or remove strict mode: omit `--strict-id-mapping`
+
+### Corrupt/unsupported images
+- **Symptom:** processing fails for some files; check the manifest (if enabled).
+  - **Fix:** remove/re-generate the problematic image(s). Prefer exporting as PNG/JPG from the generator.
+
+### Windows path quoting (spaces in paths)
+- **Symptom:** commands fail when paths contain spaces (like `D:\\Data science project\\...`).
+  - **Fix:** wrap paths in quotes, e.g. `--input \"D:\\Data science project\\...\\raw_synthetic\"`.
+
+### Output folder naming (spaces vs underscores)
+- Some training scripts don’t like spaces in folder names (e.g., `Natural light`).
+  - **Fix:** keep “slugified” folder names (default in post-processing) or standardize names in your training code.
+
+---
+
 ## Repo Contents
 - `prompt.csv`: prompt templates for mixed-disease synthetic data generation
 - `Research work.pptx`: project presentation (problem, proposed model, and intermediate experiment results)
